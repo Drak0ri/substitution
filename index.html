@@ -2408,7 +2408,15 @@
             </div>
 
             <div id="analytics-content" style="display: none;">
-                
+
+                <!-- Analytics Options -->
+                <div style="display: flex; justify-content: flex-end; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                    <label class="toggle-container">
+                        <input type="checkbox" id="include-excluded-analytics-toggle">
+                        <span>Include Excluded Staff in Analytics <span class="exclusion-count" id="analytics-exclusion-badge">0</span></span>
+                    </label>
+                </div>
+
                 <!-- Section 1: Capacity Overview -->
                 <div class="analytics-section">
                     <h3 class="analytics-section-title">📊 Capacity Overview</h3>
@@ -2862,6 +2870,7 @@
         // Staff Exclusion Feature
         let excludedStaff = new Set(); // Set of excluded teacher names
         let showExcludedMode = false;  // Whether we're showing excluded staff
+        let includeExcludedInAnalytics = false; // Whether to include excluded staff in analytics
 
         // ============================================================================
         // DOM ELEMENTS
@@ -2942,6 +2951,8 @@
             if (badge) {
                 badge.textContent = excludedStaff.size;
             }
+            // Also update analytics badge
+            updateAnalyticsExclusionBadge();
         }
 
         /**
@@ -2956,6 +2967,29 @@
             } else {
                 // In normal mode, hide excluded staff
                 return isExcluded;
+            }
+        }
+
+        /**
+         * Check if a teacher should be filtered out from analytics
+         * Respects the "Include Excluded in Analytics" toggle
+         */
+        function shouldFilterExcludedFromAnalytics(teacherName) {
+            if (includeExcludedInAnalytics) {
+                // Include all staff in analytics
+                return false;
+            }
+            // Otherwise, filter out excluded staff
+            return excludedStaff.has(teacherName);
+        }
+
+        /**
+         * Update the analytics exclusion badge
+         */
+        function updateAnalyticsExclusionBadge() {
+            const badge = document.getElementById('analytics-exclusion-badge');
+            if (badge) {
+                badge.textContent = excludedStaff.size;
             }
         }
 
@@ -3960,11 +3994,11 @@
             const now = new Date();
             const currentWeek = getCalendarWeek(now);
 
-            // Get staff categories and filter out excluded staff
+            // Get staff categories and filter out excluded staff (respects analytics toggle)
             const allStaff = getAllTeachersSeparated();
-            const teachingStaff = allStaff.teachingStaff.filter(t => !shouldFilterExcluded(t));
-            const otherStaff = allStaff.otherStaff.filter(t => !shouldFilterExcluded(t));
-            const adminStaff = allStaff.adminStaff.filter(t => !shouldFilterExcluded(t));
+            const teachingStaff = allStaff.teachingStaff.filter(t => !shouldFilterExcludedFromAnalytics(t));
+            const otherStaff = allStaff.otherStaff.filter(t => !shouldFilterExcludedFromAnalytics(t));
+            const adminStaff = allStaff.adminStaff.filter(t => !shouldFilterExcludedFromAnalytics(t));
 
             // Calculate teaching hours for each teacher (only non-excluded)
             const teacherHours = new Map();
@@ -4053,9 +4087,9 @@
                 
                 const data = subjects.get(subject);
                 data.hours += length / 60; // Convert to hours
-                // Only add non-excluded teachers to subject analysis
+                // Only add non-excluded teachers to subject analysis (respects analytics toggle)
                 teachers.forEach(t => {
-                    if (!shouldFilterExcluded(t)) {
+                    if (!shouldFilterExcludedFromAnalytics(t)) {
                         data.teachers.add(t);
                     }
                 });
@@ -5986,6 +6020,17 @@
                         label.innerHTML = `Show Excluded <span class="exclusion-count" id="exclusion-count-badge">${excludedStaff.size}</span>`;
                     }
                 }
+            });
+        }
+
+        // Include Excluded in Analytics toggle
+        const includeExcludedAnalyticsToggle = document.getElementById('include-excluded-analytics-toggle');
+        if (includeExcludedAnalyticsToggle) {
+            includeExcludedAnalyticsToggle.addEventListener('change', (e) => {
+                includeExcludedInAnalytics = e.target.checked;
+                console.log('[EXCLUSION] Include excluded in analytics:', includeExcludedInAnalytics);
+                // Refresh analytics to reflect the change
+                updateAnalytics();
             });
         }
 
