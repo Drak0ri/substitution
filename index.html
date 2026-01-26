@@ -5126,10 +5126,12 @@
                 `;
 
                 // Add click handler for Exclude/Re-include button
-                const excludeBtn = li.querySelector('.exclude-btn, .reinclude-btn');
+                const excludeBtn = li.querySelector('.exclude-btn');
                 if (excludeBtn) {
                     excludeBtn.addEventListener('click', (e) => {
                         e.stopPropagation();
+                        e.preventDefault();
+                        console.log('[EXCLUSION] Button clicked for:', teacher);
                         toggleTeacherExclusion(teacher);
                     });
                 }
