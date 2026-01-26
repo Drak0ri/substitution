@@ -3446,11 +3446,15 @@
                 });
             }
 
-            // Separate into teaching and admin staff
-            const teachingStaff = allAvailable.filter(t => !t.isAdmin).sort((a, b) => a.teacher.localeCompare(b.teacher));
-            const adminStaff = allAvailable.filter(t => t.isAdmin).sort((a, b) => a.teacher.localeCompare(b.teacher));
-            
-            return { 
+            // Separate into teaching and admin staff, filtering out user-excluded staff
+            const teachingStaff = allAvailable
+                .filter(t => !t.isAdmin && !shouldFilterExcluded(t.teacher))
+                .sort((a, b) => a.teacher.localeCompare(b.teacher));
+            const adminStaff = allAvailable
+                .filter(t => t.isAdmin && !shouldFilterExcluded(t.teacher))
+                .sort((a, b) => a.teacher.localeCompare(b.teacher));
+
+            return {
                 available: teachingStaff,  // For backwards compatibility
                 teachingStaff,
                 adminStaff
@@ -3612,8 +3616,11 @@
                 });
             }
 
-            availableWithEndTimes.sort((a, b) => a.teacher.localeCompare(b.teacher));
-            return { available: availableWithEndTimes };
+            // Filter out user-excluded staff and sort
+            const filteredAvailable = availableWithEndTimes
+                .filter(t => !shouldFilterExcluded(t.teacher))
+                .sort((a, b) => a.teacher.localeCompare(b.teacher));
+            return { available: filteredAvailable };
         }
 
         // ============================================================================
@@ -3810,11 +3817,12 @@
             
             // Get staff categories
             const { teachingStaff, otherStaff } = getAllTeachersSeparated();
-            
-            // Build the pool of eligible staff based on toggle
-            let eligibleStaff = [...teachingStaff];
+
+            // Build the pool of eligible staff based on toggle, filtering out excluded staff
+            let eligibleStaff = teachingStaff.filter(t => !shouldFilterExcluded(t));
             if (includeOtherStaffInRecommendations) {
-                eligibleStaff = [...teachingStaff, ...otherStaff];
+                const filteredOther = otherStaff.filter(t => !shouldFilterExcluded(t));
+                eligibleStaff = [...eligibleStaff, ...filteredOther];
             }
             const eligibleSet = new Set(eligibleStaff);
             
