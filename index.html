@@ -3959,11 +3959,14 @@
         function calculateAllAnalytics() {
             const now = new Date();
             const currentWeek = getCalendarWeek(now);
-            
-            // Get staff categories
-            const { teachingStaff, otherStaff, adminStaff } = getAllTeachersSeparated();
-            
-            // Calculate teaching hours for each teacher
+
+            // Get staff categories and filter out excluded staff
+            const allStaff = getAllTeachersSeparated();
+            const teachingStaff = allStaff.teachingStaff.filter(t => !shouldFilterExcluded(t));
+            const otherStaff = allStaff.otherStaff.filter(t => !shouldFilterExcluded(t));
+            const adminStaff = allStaff.adminStaff.filter(t => !shouldFilterExcluded(t));
+
+            // Calculate teaching hours for each teacher (only non-excluded)
             const teacherHours = new Map();
             teachingStaff.forEach(teacher => {
                 const weeklyHours = getWeeklyTeachingHours(teacher);
@@ -4050,7 +4053,12 @@
                 
                 const data = subjects.get(subject);
                 data.hours += length / 60; // Convert to hours
-                teachers.forEach(t => data.teachers.add(t));
+                // Only add non-excluded teachers to subject analysis
+                teachers.forEach(t => {
+                    if (!shouldFilterExcluded(t)) {
+                        data.teachers.add(t);
+                    }
+                });
                 if (room) data.rooms.add(room);
             });
             
