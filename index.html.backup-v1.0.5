@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Teacher Finder v1.1</title>
+    <title>Teacher Finder v1.0</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔍</text></svg>">
     <style>
         * {
@@ -2100,91 +2100,6 @@
         .data-status.not-loaded .data-status-dot {
             background: #ff9800;
         }
-
-        /* ============================================
-           STAFF EXCLUSION FEATURE - CSS STYLES
-           ============================================ */
-
-        /* Exclude button on teacher cards */
-        .exclude-btn {
-            background: #dc3545;
-            color: white;
-            border: none;
-            padding: 2px 8px;
-            border-radius: 50%;
-            font-size: 0.9em;
-            font-weight: 700;
-            cursor: pointer;
-            margin-left: 8px;
-            transition: all 0.2s ease;
-            width: auto;
-            line-height: 1;
-            min-width: 24px;
-            height: 24px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .exclude-btn:hover {
-            background: #c82333;
-            transform: scale(1.1);
-        }
-
-        /* Re-include button (when showing excluded staff) */
-        .reinclude-btn {
-            background: #28a745;
-            color: white;
-        }
-
-        .reinclude-btn:hover {
-            background: #218838;
-        }
-
-        /* Excluded staff visual indication */
-        .teacher-list li.excluded-staff {
-            background: #dc3545;
-            opacity: 0.7;
-        }
-
-        .teacher-list li.excluded-staff .teacher-name::before {
-            content: "🚫 ";
-        }
-
-        /* Matrix mode for exclude buttons */
-        body.matrix-mode .exclude-btn {
-            background: #ff0000;
-            border: 1px solid #ff0000;
-        }
-
-        body.matrix-mode .exclude-btn:hover {
-            background: #ff3333;
-        }
-
-        body.matrix-mode .reinclude-btn {
-            background: #00ff00;
-            border: 1px solid #00ff00;
-            color: #000;
-        }
-
-        /* Exclusion count badge */
-        .exclusion-count {
-            background: #dc3545;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.8em;
-            min-width: 20px;
-            text-align: center;
-            margin-left: 10px;
-        }
-
-        /* Toggle group for multiple toggles */
-        .toggle-group {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
     </style>
 </head>
 <body>
@@ -2245,7 +2160,7 @@
     </div>
     
     <div class="container">
-        <h1>🔍 Teacher Finder <span class="version-badge">v1.1</span></h1>
+        <h1>🔍 Teacher Finder <span class="version-badge">v1.0.5</span></h1>
         
         <!-- Feedback Button -->
         <a id="feedback-button" href="#" target="_blank" class="feedback-button" title="Send Feedback">
@@ -2275,16 +2190,10 @@
             <div class="section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                     <h2 style="margin: 0;">✅ Available Right Now</h2>
-                    <div class="toggle-group">
-                        <label class="toggle-container">
-                            <input type="checkbox" id="lessons-only-toggle">
-                            <span>Lessons Only Mode</span>
-                        </label>
-                        <label class="toggle-container">
-                            <input type="checkbox" id="show-excluded-toggle">
-                            <span>Show Excluded <span class="exclusion-count" id="exclusion-count-badge">0</span></span>
-                        </label>
-                    </div>
+                    <label class="toggle-container">
+                        <input type="checkbox" id="lessons-only-toggle">
+                        <span>Lessons Only Mode</span>
+                    </label>
                 </div>
                 <div class="results">
                     <div id="status-now" class="status">Please load a schedule file to begin</div>
@@ -2859,10 +2768,6 @@
         let showAllWeekRecommendations = false; // Default: show only available now
         let includeOtherStaffInRecommendations = false; // Default: teaching staff only
 
-        // Staff Exclusion Feature
-        let excludedStaff = new Set(); // Set of excluded teacher names
-        let showExcludedMode = false;  // Whether we're showing excluded staff
-
         // ============================================================================
         // DOM ELEMENTS
         // ============================================================================
@@ -2881,83 +2786,6 @@
         const hideMotherTongueToggle = document.getElementById('hide-mother-tongue-toggle');
         const dataStatusEl = document.getElementById('data-status');
         const dataStatusText = document.getElementById('data-status-text');
-
-        // ============================================================================
-        // STAFF EXCLUSION FUNCTIONS
-        // ============================================================================
-
-        /**
-         * Load excluded staff from localStorage on page load
-         */
-        function loadExcludedStaff() {
-            try {
-                const saved = localStorage.getItem('teacherFinder_excludedStaff');
-                if (saved) {
-                    excludedStaff = new Set(JSON.parse(saved));
-                    console.log('[EXCLUSION] Loaded excluded staff:', Array.from(excludedStaff));
-                }
-            } catch (error) {
-                console.error('[EXCLUSION] Error loading excluded staff:', error);
-                excludedStaff = new Set();
-            }
-            updateExclusionBadge();
-        }
-
-        /**
-         * Save excluded staff to localStorage
-         */
-        function saveExcludedStaff() {
-            try {
-                localStorage.setItem('teacherFinder_excludedStaff', JSON.stringify(Array.from(excludedStaff)));
-                console.log('[EXCLUSION] Saved excluded staff:', Array.from(excludedStaff));
-            } catch (error) {
-                console.error('[EXCLUSION] Error saving excluded staff:', error);
-            }
-        }
-
-        /**
-         * Toggle a teacher's exclusion status
-         */
-        function toggleTeacherExclusion(teacherName) {
-            if (excludedStaff.has(teacherName)) {
-                excludedStaff.delete(teacherName);
-                console.log('[EXCLUSION] Re-included:', teacherName);
-            } else {
-                excludedStaff.add(teacherName);
-                console.log('[EXCLUSION] Excluded:', teacherName);
-            }
-            saveExcludedStaff();
-            updateExclusionBadge();
-
-            // Refresh displays
-            updateAvailableNow();
-            updateRecommendedForCover();
-        }
-
-        /**
-         * Update the exclusion count badge
-         */
-        function updateExclusionBadge() {
-            const badge = document.getElementById('exclusion-count-badge');
-            if (badge) {
-                badge.textContent = excludedStaff.size;
-            }
-        }
-
-        /**
-         * Check if a teacher should be filtered out based on exclusion settings
-         */
-        function shouldFilterExcluded(teacherName) {
-            const isExcluded = excludedStaff.has(teacherName);
-
-            if (showExcludedMode) {
-                // In "Show Excluded" mode, ONLY show excluded staff
-                return !isExcluded;
-            } else {
-                // In normal mode, hide excluded staff
-                return isExcluded;
-            }
-        }
 
         // ============================================================================
         // CLOCK FUNCTIONALITY
@@ -3124,11 +2952,6 @@
         function shouldExcludeFromAvailability(teacherName) {
             // Check manual exclusion list (completely hidden)
             if (MANUAL_EXCLUDE_LIST.has(teacherName)) {
-                return true;
-            }
-
-            // Check user-excluded staff (unless we're in "Show Excluded" mode)
-            if (shouldFilterExcluded(teacherName)) {
                 return true;
             }
 
@@ -5064,24 +4887,18 @@
          */
         function displayAvailableList(staffList, listElement, currentTime, showAssignButton = false) {
             listElement.innerHTML = '';
-
+            
             if (staffList.length === 0) {
                 return;
             }
 
             const nowMinutes = (currentTime.getHours() * 60) + currentTime.getMinutes();
-
+            
             staffList.forEach(item => {
                 const li = document.createElement('li');
                 const teacher = item.teacher;
                 const endTime = item.endTime;
-
-                // Check if this teacher is excluded
-                const isExcluded = excludedStaff.has(teacher);
-                if (isExcluded && showExcludedMode) {
-                    li.classList.add('excluded-staff');
-                }
-
+                
                 // Calculate duration available
                 let durationText = '';
                 let endTimeStr = '';
@@ -5090,7 +4907,7 @@
                     const durationHours = Math.floor(durationMinutes / 60);
                     const durationMins = durationMinutes % 60;
                     endTimeStr = minutesToHHMM(endTime);
-
+                    
                     if (durationHours > 0 && durationMins > 0) {
                         durationText = `${durationHours}h ${durationMins}m until ${endTimeStr}`;
                     } else if (durationHours > 0) {
@@ -5101,41 +4918,21 @@
                         durationText = `until ${endTimeStr}`;
                     }
                 }
-
-                // Build HTML with exclude/reinclude button
-                let excludeButtonHtml = '';
-                if (showExcludedMode) {
-                    // Show green "add back" button
-                    excludeButtonHtml = `<button class="exclude-btn reinclude-btn" data-teacher="${teacher}" title="Re-include this teacher">×</button>`;
-                } else {
-                    // Show red "exclude" button
-                    excludeButtonHtml = `<button class="exclude-btn" data-teacher="${teacher}" title="Exclude this teacher">×</button>`;
-                }
-
-                // Optional Assign button (only for teaching staff in normal mode)
+                
+                // Build HTML with optional Assign button
                 let assignButtonHtml = '';
-                if (showAssignButton && !showExcludedMode) {
+                if (showAssignButton) {
                     assignButtonHtml = `<button class="assign-cover-btn" data-teacher="${teacher}" data-end-time="${endTimeStr}">Assign</button>`;
                 }
-
+                
                 li.innerHTML = `
                     <span class="teacher-name">${teacher}</span>
                     ${durationText ? `<span class="teacher-duration">(${durationText})</span>` : ''}
-                    ${excludeButtonHtml}
                     ${assignButtonHtml}
                 `;
-
-                // Add click handler for Exclude/Re-include button
-                const excludeBtn = li.querySelector('.exclude-btn, .reinclude-btn');
-                if (excludeBtn) {
-                    excludeBtn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        toggleTeacherExclusion(teacher);
-                    });
-                }
-
+                
                 // Add click handler for Assign button
-                if (showAssignButton && !showExcludedMode) {
+                if (showAssignButton) {
                     const assignBtn = li.querySelector('.assign-cover-btn');
                     if (assignBtn) {
                         assignBtn.addEventListener('click', (e) => {
@@ -5144,7 +4941,7 @@
                         });
                     }
                 }
-
+                
                 listElement.appendChild(li);
             });
         }
@@ -5951,26 +5748,6 @@
             });
         }
 
-        // Show Excluded toggle
-        const showExcludedToggle = document.getElementById('show-excluded-toggle');
-        if (showExcludedToggle) {
-            showExcludedToggle.addEventListener('change', (e) => {
-                showExcludedMode = e.target.checked;
-                console.log('[EXCLUSION] Show excluded mode:', showExcludedMode);
-                updateAvailableNow();
-
-                // Update toggle label dynamically
-                const label = showExcludedToggle.parentElement.querySelector('span');
-                if (label) {
-                    if (showExcludedMode) {
-                        label.innerHTML = `Showing Excluded <span class="exclusion-count" id="exclusion-count-badge">${excludedStaff.size}</span>`;
-                    } else {
-                        label.innerHTML = `Show Excluded <span class="exclusion-count" id="exclusion-count-badge">${excludedStaff.size}</span>`;
-                    }
-                }
-            });
-        }
-
         // File input handler
         const fileInput = document.getElementById('schedule-file-input');
         fileInput.addEventListener('change', async (e) => {
@@ -6176,9 +5953,6 @@
                 });
             }
         }
-
-        // Load excluded staff from localStorage
-        loadExcludedStaff();
 
         // Initialize - try to load automatically
         loadData().catch(() => {
