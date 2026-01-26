@@ -1,0 +1,83 @@
+/* ============================================
+   STAFF EXCLUSION FEATURE - CSS STYLES
+   Teacher Finder v1.1
+   Add this CSS to your <style> section
+   ============================================ */
+
+/* Exclude button on teacher cards */
+.exclude-btn {
+    background: #dc3545;
+    color: white;
+    border: none;
+    padding: 2px 8px;
+    border-radius: 50%;
+    font-size: 0.9em;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: 8px;
+    transition: all 0.2s ease;
+    width: auto;
+    line-height: 1;
+    min-width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.exclude-btn:hover {
+    background: #c82333;
+    transform: scale(1.1);
+}
+
+/* Re-include button (when showing excluded staff) */
+.reinclude-btn {
+    background: #28a745;
+    color: white;
+}
+
+.reinclude-btn:hover {
+    background: #218838;
+}
+
+/* Excluded staff visual indication */
+.teacher-list li.excluded-staff {
+    background: #dc3545;
+    opacity: 0.7;
+}
+
+.teacher-list li.excluded-staff .teacher-name::before {
+    content: "🚫 ";
+}
+
+/* Matrix mode for exclude buttons */
+body.matrix-mode .exclude-btn {
+    background: #ff0000;
+    border: 1px solid #ff0000;
+}
+
+body.matrix-mode .exclude-btn:hover {
+    background: #ff3333;
+}
+
+body.matrix-mode .reinclude-btn {
+    background: #00ff00;
+    border: 1px solid #00ff00;
+    color: #000;
+}
+
+/* Exclusion count badge */
+.exclusion-count {
+    background: #dc3545;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.8em;
+    min-width: 20px;
+    text-align: center;
+    margin-left: 10px;
+}
+
+/* ============================================
+   END OF EXCLUSION FEATURE STYLES
+   ============================================ */

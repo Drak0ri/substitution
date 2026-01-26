@@ -1,0 +1,47 @@
+<!-- ============================================
+     STAFF EXCLUSION FEATURE - HTML CHANGES
+     Teacher Finder v1.1
+     ============================================ -->
+
+<!-- 
+     LOCATION: "Available Right Now" section header
+     FIND: (around line 1150)
+-->
+
+<!-- BEFORE: -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+    <h2 style="margin: 0;">✅ Available Right Now</h2>
+    <label class="toggle-container">
+        <input type="checkbox" id="lessons-only-toggle">
+        <span>Lessons Only Mode</span>
+    </label>
+</div>
+
+<!-- AFTER (REPLACE WITH): -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+    <h2 style="margin: 0;">✅ Available Right Now</h2>
+    <div class="toggle-group">
+        <label class="toggle-container">
+            <input type="checkbox" id="lessons-only-toggle">
+            <span>Lessons Only Mode</span>
+        </label>
+        <label class="toggle-container">
+            <input type="checkbox" id="show-excluded-toggle">
+            <span>Show Excluded <span class="exclusion-count" id="exclusion-count-badge">0</span></span>
+        </label>
+    </div>
+</div>
+
+<!-- ============================================
+     That's the only HTML change needed!
+     ============================================ -->
+
+<!-- 
+     VISUAL RESULT:
+     
+     Before:
+     ✅ Available Right Now              [✓] Lessons Only Mode
+     
+     After:
+     ✅ Available Right Now              [✓] Lessons Only Mode  [✓] Show Excluded (0)
+-->
