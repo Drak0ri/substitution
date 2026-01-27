@@ -4064,16 +4064,20 @@
          */
         function analyzeSubjects(targetWeek) {
             const subjects = new Map(); // subject -> { hours, teachers, rooms }
-            
+
             lessons.forEach(lesson => {
                 const subject = lesson[columnMap['subject']]?.trim().toLowerCase();
                 const weekString = lesson[columnMap['realweeks']];
                 const teacherStr = lesson[columnMap['teacher']]?.trim();
                 const lengthStr = lesson[columnMap['length']];
                 const room = lesson[columnMap['room']]?.trim() || 'Unknown';
-                
+                const lessonDay = lesson[columnMap['day']]?.trim();
+
                 if (!subject || !weekString || !lengthStr) return;
                 if (!isLesson(lesson)) return;
+
+                // Skip weekend lessons (Sat/Sun)
+                if (lessonDay === 'Sat' || lessonDay === 'Sun') return;
                 
                 const lessonWeeks = parseRealWeeks(weekString);
                 if (!lessonWeeks.has(targetWeek)) return;
@@ -4122,15 +4126,19 @@
          */
         function analyzeRooms(targetWeek) {
             const rooms = new Map(); // room -> { hours, subjects }
-            
+
             lessons.forEach(lesson => {
                 const room = lesson[columnMap['room']]?.trim();
                 const weekString = lesson[columnMap['realweeks']];
                 const lengthStr = lesson[columnMap['length']];
                 const subject = lesson[columnMap['subject']]?.trim().toLowerCase();
-                
+                const lessonDay = lesson[columnMap['day']]?.trim();
+
                 if (!room || !weekString || !lengthStr) return;
                 if (!isLesson(lesson)) return;
+
+                // Skip weekend lessons (Sat/Sun)
+                if (lessonDay === 'Sat' || lessonDay === 'Sun') return;
                 
                 const lessonWeeks = parseRealWeeks(weekString);
                 if (!lessonWeeks.has(targetWeek)) return;
@@ -4295,13 +4303,17 @@
                 const lengthStr = lesson[columnMap['length']];
                 const teacherStr = lesson[columnMap['teacher']]?.trim();
                 const subject = lesson[columnMap['subject']]?.trim();
-                
+                const lessonDay = lesson[columnMap['day']]?.trim();
+
                 if (!group || !weekString || !lengthStr) return;
                 if (!isLesson(lesson)) return;
-                
+
+                // Skip weekend lessons (Sat/Sun)
+                if (lessonDay === 'Sat' || lessonDay === 'Sun') return;
+
                 // Only count actual class groups (like 4A, 5B, 6C)
                 if (!classGroupPattern.test(group)) return;
-                
+
                 const lessonWeeks = parseRealWeeks(weekString);
                 if (!lessonWeeks.has(targetWeek)) return;
                 
@@ -5765,6 +5777,9 @@
                 const startStr = lesson[columnMap['starttime']];
 
                 if (!weekString || !lenStr || !teacherStr || !lessonDay || !startStr) return;
+
+                // Skip weekend lessons (Sat/Sun)
+                if (lessonDay === 'Sat' || lessonDay === 'Sun') return;
 
                 const teachers = parseTeachers(teacherStr);
                 if (!teachers.includes(teacherName)) return;
