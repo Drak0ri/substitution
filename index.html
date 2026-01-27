@@ -3913,7 +3913,7 @@
             teachersWithHours.sort((a, b) => b.spare - a.spare);
             
             // Take top 10 recommendations
-            const topRecommendations = teachersWithHours.slice(0, 10);
+            const topRecommendations = teachersWithHours.slice(0, 25);
             
             // Build the display
             emptyEl.style.display = 'none';
@@ -4443,7 +4443,7 @@
             const sortedTeachers = Array.from(analytics.teacherHours.entries())
                 .map(([name, hours]) => ({ name, hours, spare: HOUR_THRESHOLD_WARNING - hours }))
                 .sort((a, b) => b.spare - a.spare)
-                .slice(0, 10);
+                .slice(0, 25);
             
             sortedTeachers.forEach(teacher => {
                 const li = document.createElement('li');
